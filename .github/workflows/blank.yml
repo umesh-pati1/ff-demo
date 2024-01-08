@@ -38,20 +38,7 @@ jobs:
           git config --global user.email "umesh.apatil180@gmail.com"
           git config --global user.name "umesh-pati1"
 
-      - name: Check if Target Branch Exists
-        run: |
-          cd source-repo
-          target_branch=flutterflow
-          git fetch origin
-          if ! git rev-parse --verify $target_branch; then
-            git checkout -b $target_branch
-            git push origin $target_branch
-          else
-            git checkout $target_branch
-          fi
-
       - name: Push to Target Repository
         run: |
           cd source-repo
-          git pull origin flutterflow
           git push https://${{ secrets.TARGET_REPO_TOKEN }}@github.com/umesh-pati1/ff-demo.git flutterflow
