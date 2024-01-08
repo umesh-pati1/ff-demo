@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ "flutterflow" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "flutterflow" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,13 +24,34 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.before }}
+          path: source-repo
+
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Configure Git
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          git config --global user.email "umesh.apatil180@gmail.com"
+          git config --global user.name "umesh-pati1"
+
+      - name: Check if Target Branch Exists
+        run: |
+          cd source-repo
+          target_branch=flutterflow
+          git fetch origin
+          if ! git rev-parse --verify $target_branch; then
+            git checkout -b $target_branch
+            git push origin $target_branch
+          else
+            git checkout $target_branch
+          fi
+
+      - name: Push to Target Repository
+        run: |
+          cd source-repo
+          git pull origin flutterflow
+          git push https://${{ secrets.TARGET_REPO_TOKEN }}@github.com/umesh-pati1/ff-demo.git flutterflow
